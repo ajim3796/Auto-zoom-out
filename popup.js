@@ -6,22 +6,24 @@ const checkButton = document.getElementById("check-button");
 const hostButton = document.getElementById("host-button");
 const urlButton = document.getElementById("url-button");
 const resetButton = document.getElementById("reset-button");
-let type;
-let size;
 
 async function sendMessageToActiveTab(message) {
-  const [tab] = await chrome.tabs
+  const tabs = await chrome.tabs
     .query({ active: true, lastFocusedWindow: true })
-    .catch((e) => {});
+    .catch(() => []);
+  const tab = tabs?.[0];
+  if (!tab?.id) {
+    return undefined;
+  }
   const response = await chrome.tabs
     .sendMessage(tab.id, message)
-    .catch((e) => {});
+    .catch(() => undefined);
   return response;
 }
 
 (async () => {
-  const toggleCheck = await chrome.storage.local.get().catch((e) => {});
-  if (toggleCheck.toggle === 0) {
+  const toggleCheck = await chrome.storage.local.get().catch(() => ({}));
+  if (toggleCheck?.toggle === 0) {
     toggleButton.checked = false;
   }
   const popup = await sendMessageToActiveTab({
@@ -48,32 +50,28 @@ async function sendMessageToActiveTab(message) {
   }
 })();
 
-toggleButton.onchange = () => {
+toggleButton.addEventListener("change", () => {
   const toggleValue = toggleButton.checked ? 1 : 0;
   chrome.storage.local.set({ toggle: toggleValue });
   sendMessageToActiveTab({ msg: "toggle", toggle: toggleValue });
-};
+});
 
-checkButton.onclick = () => {
-  type = typeElement.value;
-  size = sizeElement.value;
-  sendMessageToActiveTab({ msg: "check", type: type, size: size });
-};
+checkButton.addEventListener("click", () => {
+  const type = typeElement.value;
+  const size = sizeElement.value;
+  sendMessageToActiveTab({ msg: "check", type, size });
+});
 
-hostButton.onclick = () => {
-  type = typeElement.value;
-  size = sizeElement.value;
+hostButton.addEventListener("click", () => {
   sendMessageToActiveTab({ msg: "save_host", type: "", size: "" });
-};
+});
 
-urlButton.onclick = () => {
-  type = typeElement.value;
-  size = sizeElement.value;
+urlButton.addEventListener("click", () => {
   sendMessageToActiveTab({ msg: "save_url", type: "", size: "" });
-};
+});
 
-resetButton.onclick = () => {
+resetButton.addEventListener("click", () => {
   typeElement.options[0].selected = true;
   sizeElement.value = "100";
   sendMessageToActiveTab({ msg: "reset", type: "", size: "" });
-};
+});

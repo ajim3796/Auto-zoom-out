@@ -160,5 +160,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     size = "100";
     reset();
   }
-  return true;
 });
