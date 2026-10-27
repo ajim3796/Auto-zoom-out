@@ -26,8 +26,7 @@ const getItems = async () => {
     type = localData[host][0];
     size = localData[host][1];
   } else {
-    document.body.style.zoom = "";
-    document.body.style.width = "";
+    clearStyles();
     return false;
   }
   return true;
@@ -92,9 +91,15 @@ const setStorage = (key, type = "zoom", size = "100") => {
   chrome.storage.local.set(dic);
 };
 
-const reset = () => {
+const clearStyles = () => {
   document.body.style.zoom = "";
   document.body.style.width = "";
+  document.body.style.overflowX = "";
+  document.documentElement.style.overflowX = "";
+};
+
+const reset = () => {
+  clearStyles();
   chrome.storage.local.remove(url).catch((e) => {});
   chrome.storage.local.remove(host).catch((e) => {});
 };
@@ -138,8 +143,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     getItems().then((hasCustomItem) => {
       if (!hasCustomItem) {
         if (request.toggle === 0) {
-          document.body.style.zoom = "";
-          document.body.style.width = "";
+          clearStyles();
           type = "zoom";
           size = "100";
         } else {
