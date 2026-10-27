@@ -86,8 +86,8 @@ const widthFit = () => {
   return true;
 };
 
-const setStrage = (key, type = "zoom", size = "100") => {
-  dic = {};
+const setStorage = (key, type = "zoom", size = "100") => {
+  const dic = {};
   dic[key] = [type, size];
   chrome.storage.local.set(dic);
 };
@@ -138,12 +138,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     type = request.type;
     size = request.size;
     fit();
-    setStrage(url, type, size);
+    setStorage(url, type, size);
     sendResponse([type, size]);
   } else if (request.msg === "save_host") {
-    setStrage(host);
+    setStorage(host);
   } else if (request.msg === "save_url") {
-    setStrage(url);
+    setStorage(url);
   } else if (request.msg === "reset") {
     type = "zoom";
     size = "100";
