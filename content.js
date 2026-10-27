@@ -105,7 +105,7 @@ const reset = () => {
     chrome.storage.local.set({ toggle: 1 });
     localData.toggle = 1;
   }
-  if (!items) {
+  if (!items && localData?.toggle !== 0) {
     if (scrollCheck()) {
       if (sizeCheck()) {
         widthFit();
@@ -120,7 +120,7 @@ window.addEventListener("resize", () => {
   clearTimeout(timer);
   timer = setTimeout(async () => {
     const items = await getItems().catch((e) => {});
-    if (!items) {
+    if (!items && localData?.toggle !== 0) {
       if (scrollCheck()) {
         if (sizeCheck()) {
           widthFit();
@@ -132,7 +132,25 @@ window.addEventListener("resize", () => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.msg === "popup") {
+  if (request.msg === "toggle") {
+    if (!localData) localData = {};
+    localData.toggle = request.toggle;
+    getItems().then((hasCustomItem) => {
+      if (!hasCustomItem) {
+        if (request.toggle === 0) {
+          document.body.style.zoom = "";
+          document.body.style.width = "";
+          type = "zoom";
+          size = "100";
+        } else {
+          if (scrollCheck() && sizeCheck()) {
+            widthFit();
+          }
+          fit();
+        }
+      }
+    });
+  } else if (request.msg === "popup") {
     sendResponse([type, size]);
   } else if (request.msg === "check") {
     type = request.type;

@@ -49,11 +49,9 @@ async function sendMessageToActiveTab(message) {
 })();
 
 toggleButton.onchange = () => {
-  if (toggleButton.checked) {
-    chrome.storage.local.set({ toggle: 1 });
-  } else {
-    chrome.storage.local.set({ toggle: 0 });
-  }
+  const toggleValue = toggleButton.checked ? 1 : 0;
+  chrome.storage.local.set({ toggle: toggleValue });
+  sendMessageToActiveTab({ msg: "toggle", toggle: toggleValue });
 };
 
 checkButton.onclick = () => {
